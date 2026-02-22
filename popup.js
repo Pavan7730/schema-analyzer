@@ -1,5 +1,8 @@
-async function getSchemas() {
+async function analyzePage() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  // Show current page URL
+  document.getElementById("pageUrl").textContent = tab.url;
 
   const result = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
@@ -8,7 +11,7 @@ async function getSchemas() {
 
       document
         .querySelectorAll('script[type="application/ld+json"]')
-        .forEach((script) => {
+        .forEach(script => {
           try {
             const json = JSON.parse(script.innerText);
             schemas.push(json);
@@ -19,7 +22,7 @@ async function getSchemas() {
     }
   });
 
-  return result[0].result || [];
+  renderSchemas(result[0].result || []);
 }
 
 function renderSchemas(schemas) {
@@ -27,29 +30,40 @@ function renderSchemas(schemas) {
   container.innerHTML = "";
 
   if (!schemas.length) {
-    container.innerHTML = `<div class="loading">No schema found</div>`;
+    container.innerHTML = `<div class="loading">No schema found on this page</div>`;
     return;
   }
 
-  schemas.forEach((schema, index) => {
+  schemas.forEach(schema => {
     const type = Array.isArray(schema["@type"])
       ? schema["@type"].join(", ")
       : schema["@type"] || "Unknown";
 
-    const card = document.createElement("div");
-    card.className = "schema-card";
+    const item = document.createElement("div");
+    item.className = "schema-item";
 
-    card.innerHTML = `
-      <h3>${type}</h3>
-      <div class="schema-meta">Format: JSON-LD</div>
-      <pre class="schema-json">${JSON.stringify(schema, null, 2)}</pre>
+    item.innerHTML = `
+      <div class="schema-header">
+        <span class="schema-type">${type}</span>
+        <span class="toggle">▾</span>
+      </div>
+      <div class="schema-body">
+        <pre>${JSON.stringify(schema, null, 2)}</pre>
+      </div>
     `;
 
-    container.appendChild(card);
+    const header = item.querySelector(".schema-header");
+    const body = item.querySelector(".schema-body");
+    const toggle = item.querySelector(".toggle");
+
+    header.addEventListener("click", () => {
+      const open = body.style.display === "block";
+      body.style.display = open ? "none" : "block";
+      toggle.textContent = open ? "▾" : "▴";
+    });
+
+    container.appendChild(item);
   });
 }
 
-(async function init() {
-  const schemas = await getSchemas();
-  renderSchemas(schemas);
-})();
+analyzePage();
