@@ -96,3 +96,32 @@ footer {
   opacity: 0.6;
   margin-top: 8px;
 }
+.schema-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.action-btn {
+  background: #020617;
+  border: 1px solid #1e293b;
+  color: #e5e7eb;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  background: #020617cc;
+}
+
+.search-box {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 6px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #e5e7eb;
+}
