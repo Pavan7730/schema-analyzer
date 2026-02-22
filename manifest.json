@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Schema Analyzer",
+  "description": "Analyze schema markup (JSON-LD, Microdata) on any webpage.",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": ["activeTab", "scripting"],
+  "icons": {
+    "128": "icon.png"
+  }
+}
