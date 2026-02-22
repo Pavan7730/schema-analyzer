@@ -39,27 +39,58 @@ function renderSchemas(schemas) {
       ? schema["@type"].join(", ")
       : schema["@type"] || "Unknown";
 
+    const jsonString = JSON.stringify(schema, null, 2);
+
     const item = document.createElement("div");
     item.className = "schema-item";
 
     item.innerHTML = `
       <div class="schema-header">
         <span class="schema-type">${type}</span>
-        <span class="toggle">▾</span>
+        <div class="schema-actions">
+          <button class="action-btn search-btn">🔍 Search</button>
+          <button class="action-btn copy-btn">📋 Copy</button>
+        </div>
       </div>
+
       <div class="schema-body">
-        <pre>${JSON.stringify(schema, null, 2)}</pre>
+        <input class="search-box" placeholder="Search in schema..." />
+        <pre>${jsonString}</pre>
       </div>
     `;
 
     const header = item.querySelector(".schema-header");
     const body = item.querySelector(".schema-body");
-    const toggle = item.querySelector(".toggle");
+    const pre = item.querySelector("pre");
+    const searchBox = item.querySelector(".search-box");
+    const copyBtn = item.querySelector(".copy-btn");
 
-    header.addEventListener("click", () => {
-      const open = body.style.display === "block";
-      body.style.display = open ? "none" : "block";
-      toggle.textContent = open ? "▾" : "▴";
+    // Toggle dropdown
+    header.addEventListener("click", (e) => {
+      if (e.target.tagName === "BUTTON") return;
+      body.style.display = body.style.display === "block" ? "none" : "block";
+    });
+
+    // Search inside schema
+    searchBox.addEventListener("input", () => {
+      const query = searchBox.value.toLowerCase();
+      const lines = jsonString.split("\n");
+
+      const filtered = lines.filter(line =>
+        line.toLowerCase().includes(query)
+      );
+
+      pre.textContent = filtered.length
+        ? filtered.join("\n")
+        : "No matching results";
+    });
+
+    // Copy schema
+    copyBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(jsonString);
+      copyBtn.textContent = "✅ Copied";
+      setTimeout(() => (copyBtn.textContent = "📋 Copy"), 1500);
     });
 
     container.appendChild(item);
